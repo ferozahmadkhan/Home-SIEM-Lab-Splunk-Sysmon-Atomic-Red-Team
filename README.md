@@ -137,27 +137,6 @@ index=sysmon EventCode=1
 
 ---
 
-## 📁 Repository Structure
-
-```
-home-siem-lab/
-├── index.html                          ← GitHub Pages documentation site
-├── README.md                           ← This file
-├── docs/
-│   ├── HomeSIEMLab_Documentation.docx  ← Full build guide (Word)
-│   └── IR_Report_2026_001.docx         ← Incident Response report
-├── configs/
-│   └── inputs.conf                     ← Splunk Forwarder log config
-└── detections/
-    ├── T1087_account_discovery.spl
-    ├── T1110_brute_force.spl
-    ├── T1059_suspicious_powershell.spl
-    ├── T1136_backdoor_account.spl
-    └── T1003_credential_dumping.spl
-```
-
----
-
 ## ⚙️ Quick Setup
 
 ### 1. Environment
