@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home SIEM Lab — Feroz Khan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --panel: #0f1923;
+    --border: #1e3a4a;
+    --green: #00ff9d;
+    --green2: #00d484;
+    --cyan: #00cfff;
+    --blue: #1a6cf0;
+    --red: #ff4757;
+    --yellow: #ffd32a;
+    --text: #c8d8e4;
+    --text2: #7a9ab0;
+    --text3: #4a6a80;
+    --mono: 'Share Tech Mono', monospace;
+    --head: 'Rajdhani', sans-serif;
+    --body: 'Outfit', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-weight: 400;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,157,0.015) 2px, rgba(0,255,157,0.015) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 2rem;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,207,255,0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,255,157,0.04) 0%, transparent 60%),
+                var(--bg);
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,207,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,207,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    animation: gridPulse 8s ease-in-out infinite;
+  }
+
+  @keyframes gridPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .hero-badge {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--green);
+    letter-spacing: 0.3em;
+    border: 1px solid rgba(0,255,157,0.3);
+    padding: 0.35rem 1rem;
+    margin-bottom: 2rem;
+    animation: blink 3s ease-in-out infinite;
+    position: relative;
+  }
+
+  .hero-badge::before { content: '▶ '; }
+
+  @keyframes blink {
+    0%, 90%, 100% { border-color: rgba(0,255,157,0.3); }
+    95% { border-color: rgba(0,255,157,0.8); }
+  }
+
+  .hero h1 {
+    font-family: var(--head);
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  .hero h1 .line1 {
+    display: block;
+    color: #fff;
+  }
+
+  .hero h1 .line2 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(0,207,255,0.5);
+  }
+
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--text2);
+    letter-spacing: 0.1em;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-sub span { color: var(--cyan); }
+
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+
+  .tag:hover { border-color: var(--green); color: var(--green); }
+
+  .stats-row {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: var(--head);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--green);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text3);
+    letter-spacing: 0.15em;
+    display: block;
+    margin-top: 0.3rem;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0.4;
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .scroll-hint span {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text3);
+  }
+
+  .scroll-arrow {
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, var(--green));
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(8,12,16,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(30,58,74,0.5);
+    transition: all 0.3s;
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text3);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--green);
+    letter-spacing: 0.3em;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: var(--head);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  .section-desc {
+    color: var(--text2);
+    max-width: 620px;
+    margin-bottom: 3rem;
+    font-size: 1rem;
+  }
+
+  /* ── DIVIDER LINE ── */
+  .div-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* ── ARCHITECTURE ── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--border);
+    background: var(--border);
+    margin-top: 2rem;
+  }
+
+  .arch-card {
+    background: var(--panel);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .arch-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--green);
+    transform: scaleY(0);
+    transition: transform 0.3s;
+    transform-origin: bottom;
+  }
+
+  .arch-card:hover::before { transform: scaleY(1); }
+  .arch-card:hover { background: #121e28; }
+
+  .arch-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .arch-layer {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--green);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.4rem;
+  }
+
+  .arch-name {
+    font-family: var(--head);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.4rem;
+  }
+
+  .arch-desc {
+    font-size: 0.85rem;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  /* ── PHASES ── */
+  .phase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 2rem;
+  }
+
+  .phase {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .phase:hover { border-color: rgba(0,207,255,0.3); }
+
+  .phase-header {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .phase-num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--green);
+    border: 1px solid rgba(0,255,157,0.3);
+    padding: 0.2rem 0.5rem;
+    min-width: 2.5rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .phase-title {
+    font-family: var(--head);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+  }
+
+  .phase-status {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+
+  .phase-chevron {
+    color: var(--text3);
+    font-size: 0.8rem;
+    transition: transform 0.3s;
+  }
+
+  .phase.open .phase-chevron { transform: rotate(180deg); }
+
+  .phase-body {
+    display: none;
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .phase.open .phase-body { display: block; }
+
+  .step-list {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .step-n {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--cyan);
+    min-width: 1.5rem;
+    padding-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  .step-text {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .step-text code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--green);
+    background: rgba(0,255,157,0.07);
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+  }
+
+  /* ── DETECTIONS ── */
+  .detection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .detection-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .detection-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(0,255,157,0.03), transparent 60%);
+    pointer-events: none;
+  }
+
+  .detection-card:hover {
+    border-color: rgba(0,255,157,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .det-id {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .det-name {
+    font-family: var(--head);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+
+  .det-tactic {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+
+  .det-desc {
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .det-query {
+    background: #060d12;
+    border: 1px solid rgba(0,255,157,0.1);
+    padding: 0.8rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--green);
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .det-severity {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    padding: 0.2rem 0.6rem;
+    margin-top: 0.8rem;
+  }
+
+  .sev-critical { background: rgba(255,71,87,0.15); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+  .sev-high { background: rgba(255,211,42,0.12); color: var(--yellow); border: 1px solid rgba(255,211,42,0.3); }
+  .sev-medium { background: rgba(0,207,255,0.1); color: var(--cyan); border: 1px solid rgba(0,207,255,0.25); }
+
+  /* ── EVENT IDS TABLE ── */
+  .event-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+  }
+
+  .event-table th {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--green);
+    text-align: left;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid rgba(0,255,157,0.2);
+    background: rgba(0,255,157,0.03);
+  }
+
+  .event-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+
+  .event-table tr:hover td { background: rgba(0,207,255,0.03); color: var(--text); }
+
+  .event-table td:first-child {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--cyan);
+    white-space: nowrap;
+  }
+
+  .event-table td:nth-child(2) { color: #fff; font-weight: 500; }
+
+  /* ── MITRE TABLE ── */
+  .mitre-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .mitre-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1.2rem;
+    transition: all 0.3s;
+  }
+
+  .mitre-card:hover {
+    border-color: rgba(0,207,255,0.4);
+    background: #111e28;
+  }
+
+  .mitre-id {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    margin-bottom: 0.4rem;
+  }
+
+  .mitre-name {
+    font-family: var(--head);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+  }
+
+  .mitre-tactic {
+    font-size: 0.75rem;
+    color: var(--text3);
+    margin-bottom: 0.6rem;
+  }
+
+  .mitre-source {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--green);
+  }
+
+  /* ── TROUBLESHOOT ── */
+  .trouble-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-top: 2rem;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .trouble-item {
+    background: var(--panel);
+    padding: 1.2rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+    transition: background 0.2s;
+  }
+
+  .trouble-item:hover { background: #121e28; }
+
+  .trouble-problem {
+    font-size: 0.85rem;
+    color: var(--red);
+    font-weight: 500;
+  }
+
+  .trouble-cause {
+    font-size: 0.82rem;
+    color: var(--text2);
+  }
+
+  .trouble-fix {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--green);
+    line-height: 1.5;
+  }
+
+  .trouble-header {
+    background: rgba(0,255,157,0.04);
+    padding: 0.7rem 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .trouble-header span {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--green);
+    letter-spacing: 0.2em;
+  }
+
+  /* ── AUTHOR ── */
+  .author-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .author-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0,255,157,0.04), transparent 70%);
+    pointer-events: none;
+  }
+
+  .author-avatar {
+    width: 80px;
+    height: 80px;
+    border: 2px solid var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--head);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--green);
+    margin: 0 auto 1.5rem;
+    position: relative;
+  }
+
+  .author-name {
+    font-family: var(--head);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+
+  .author-title {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+  }
+
+  .author-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .author-link {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text2);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 0.4rem 1rem;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .author-link:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(0,255,157,0.05);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+  }
+
+  footer span { color: var(--green); }
+
+  /* ── TERMINAL BLOCK ── */
+  .terminal {
+    background: #030709;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .terminal-bar {
+    background: #0d1923;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-red { background: #ff5f56; }
+  .t-yellow { background: #ffbd2e; }
+  .t-green { background: #27c93f; }
+
+  .terminal-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text3);
+    margin-left: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .terminal-body {
+    padding: 1.2rem 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--green);
+  }
+
+  .t-comment { color: var(--text3); }
+  .t-cmd { color: #fff; }
+  .t-output { color: var(--cyan); }
+  .t-path { color: var(--yellow); }
+  .t-prompt { color: var(--text3); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 3px solid var(--cyan);
+    background: rgba(0,207,255,0.05);
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .callout.warn {
+    border-left-color: var(--yellow);
+    background: rgba(255,211,42,0.05);
+  }
+
+  .callout.crit {
+    border-left-color: var(--red);
+    background: rgba(255,71,87,0.05);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .trouble-item, .trouble-header { grid-template-columns: 1fr; gap: 0.5rem; }
+    .nav-links { display: none; }
+    .stats-row { gap: 2rem; }
+  }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">FK://siem-lab</div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#phases">Build Guide</a></li>
+    <li><a href="#detections">Detections</a></li>
+    <li><a href="#eventids">Event IDs</a></li>
+    <li><a href="#mitre">MITRE</a></li>
+    <li><a href="#troubleshoot">Debug</a></li>
+    <li><a href="#author">Author</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-badge">SOC ANALYST HOME LAB — TIER 1</div>
+  <h1>
+    <span class="line1">HOME SIEM</span>
+    <span class="line2">LAB</span>
+  </h1>
+  <p class="hero-sub">Splunk <span>•</span> Sysmon <span>•</span> Atomic Red Team <span>•</span> MITRE ATT&CK</p>
+  <div class="hero-tags">
+    <span class="tag">WINDOWS 10</span>
+    <span class="tag">VIRTUALBOX</span>
+    <span class="tag">SPLUNK 10.2.2</span>
+    <span class="tag">SYSMON V15</span>
+    <span class="tag">5 DETECTIONS</span>
+    <span class="tag">FREE TOOLS</span>
+  </div>
+  <div class="stats-row">
+    <div class="stat">
+      <span class="stat-num">49</span>
+      <span class="stat-label">THREATS DETECTED</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label">MITRE TECHNIQUES</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">6</span>
+      <span class="stat-label">DASHBOARD PANELS</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4h</span>
+      <span class="stat-label">BUILD TIME</span>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</div>
+
+<div class="div-line"></div>
+
+<!-- OVERVIEW -->
+<section id="overview">
+  <div class="fade-in">
+    <p class="section-label">// 01 — PROJECT OVERVIEW</p>
+    <h2 class="section-title">What is this lab?</h2>
+    <p class="section-desc">A fully functional home SIEM environment that simulates a corporate blue team setup — built entirely with free tools on a single machine. Designed to develop real SOC analyst skills through hands-on attack simulation and detection engineering.</p>
+
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-icon">🖥️</div>
+        <div class="arch-layer">HOST MACHINE</div>
+        <div class="arch-name">Splunk Enterprise</div>
+        <div class="arch-desc">SIEM brain — receives, indexes and searches all logs. Free tier handles 500MB/day — more than enough for a home lab.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">💻</div>
+        <div class="arch-layer">VIRTUAL MACHINE</div>
+        <div class="arch-name">Windows 10 VM</div>
+        <div class="arch-desc">Isolated victim endpoint running in VirtualBox. Generates real security logs while keeping your host machine safe.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">👁️</div>
+        <div class="arch-layer">LOG AGENT</div>
+        <div class="arch-name">Sysmon v15</div>
+        <div class="arch-desc">Deep telemetry engine — captures every process, network connection, file creation, and registry change with SwiftOnSecurity config.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">📡</div>
+        <div class="arch-layer">LOG SHIPPER</div>
+        <div class="arch-name">Universal Forwarder</div>
+        <div class="arch-desc">Lightweight agent that collects logs from the VM and ships them to Splunk on port 9997. Must run as SYSTEM for Sysmon access.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">⚔️</div>
+        <div class="arch-layer">ATTACK SIMULATOR</div>
+        <div class="arch-name">Atomic Red Team</div>
+        <div class="arch-desc">Library of real MITRE ATT&CK technique simulations. One command generates authentic attack telemetry without guesswork.</div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-icon">🔍</div>
+        <div class="arch-layer">DETECTION ENGINE</div>
+        <div class="arch-name">Custom SPL Queries</div>
+        <div class="arch-desc">Hand-written Splunk search queries that detect brute force, PowerShell abuse, credential dumping, and more.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- PHASES / BUILD GUIDE -->
+<section id="phases">
+  <div class="fade-in">
+    <p class="section-label">// 02 — BUILD GUIDE</p>
+    <h2 class="section-title">Four phases to a working SIEM</h2>
+    <p class="section-desc">Click each phase to expand the full build steps. Follow in order — each phase depends on the previous one being complete.</p>
+
+    <div class="phase-list">
+
+      <!-- PHASE 1 -->
+      <div class="phase open" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <span class="phase-num">P1</span>
+          <span class="phase-title">Environment Setup — VirtualBox + Windows 10 VM</span>
+          <span class="phase-status">✓ COMPLETE</span>
+          <span class="phase-chevron">▼</span>
+        </div>
+        <div class="phase-body">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="t-dot t-red"></div>
+              <div class="t-dot t-yellow"></div>
+              <div class="t-dot t-green"></div>
+              <span class="terminal-title">virtualbox setup</span>
+            </div>
+            <div class="terminal-body">
+              <span class="t-comment"># Install VirtualBox + Extension Pack from virtualbox.org</span><br>
+              <span class="t-comment"># Download Windows 10 Enterprise ISO from microsoft.com/evalcenter</span><br>
+              <span class="t-comment"># Create VM: Name=Windows10-Victim, RAM=4096MB, Disk=60GB</span><br>
+              <span class="t-comment"># Install Windows — use "Domain join" to skip Microsoft account</span>
+            </div>
+          </div>
+          <div class="step-list">
+            <div class="step"><span class="step-n">01</span><span class="step-text">Download <strong>VirtualBox</strong> (Windows hosts) + Extension Pack from virtualbox.org — install both</span></div>
+            <div class="step"><span class="step-n">02</span><span class="step-text">Download <strong>Windows 10 Enterprise ISO</strong> (90-day eval) from microsoft.com/en-us/evalcenter</span></div>
+            <div class="step"><span class="step-n">03</span><span class="step-text">Create VM: Name=<code>Windows10-Victim</code>, Type=Windows 10 64-bit, RAM=4096MB, Disk=60GB</span></div>
+            <div class="step"><span class="step-n">04</span><span class="step-text">Tick <code>Skip Unattended Installation</code> — Start VM → install Windows → use "Domain join instead" for local account</span></div>
+            <div class="step"><span class="step-n">05</span><span class="step-text">Install <strong>Guest Additions</strong>: Devices → Insert Guest Additions CD → run VBoxWindowsAdditions.exe → Reboot</span></div>
+            <div class="step"><span class="step-n">06</span><span class="step-text">Take a snapshot: Machine → Take Snapshot → Name: <code>Clean-Install</code></span></div>
+          </div>
+          <div class="callout">💡 If Windows installer says "No driver found" — go to VM Settings → Storage → change controller from NVMe to SATA (AHCI)</div>
+        </div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="phase" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <span class="phase-num">P2</span>
+          <span class="phase-title">Log Ingestion Pipeline — Splunk + Sysmon + Forwarder</span>
+          <span class="phase-status">✓ COMPLETE</span>
+          <span class="phase-chevron">▼</span>
+        </div>
+        <div class="phase-body">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="t-dot t-red"></div>
+              <div class="t-dot t-yellow"></div>
+              <div class="t-dot t-green"></div>
+              <span class="terminal-title">inputs.conf — C:\Program Files\SplunkUniversalForwarder\etc\system\local\</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-output">[WinEventLog://Security]</span>
+<span class="t-cmd">disabled = 0</span>
+<span class="t-cmd">index = windows</span>
+<span class="t-cmd">renderXml = false</span>
+<br>
+<span class="t-output">[WinEventLog://Microsoft-Windows-Sysmon/Operational]</span>
+<span class="t-cmd">disabled = 0</span>
+<span class="t-cmd">index = sysmon</span>
+<span class="t-cmd">renderXml = false</span>
+            </div>
+          </div>
+          <div class="step-list">
+            <div class="step"><span class="step-n">01</span><span class="step-text">Install <strong>Splunk Enterprise</strong> on host PC → open <code>http://localhost:8000</code></span></div>
+            <div class="step"><span class="step-n">02</span><span class="step-text">Settings → Forwarding and Receiving → Configure Receiving → New Receiving Port: <code>9997</code></span></div>
+            <div class="step"><span class="step-n">03</span><span class="step-text">Settings → Indexes → create index <code>windows</code> and index <code>sysmon</code></span></div>
+            <div class="step"><span class="step-n">04</span><span class="step-text">Run <code>ipconfig</code> on host PC → note the VirtualBox Host-Only Network IPv4 address</span></div>
+            <div class="step"><span class="step-n">05</span><span class="step-text">Inside VM: install <strong>Splunk Universal Forwarder</strong> → Receiving Indexer = your host IP, port 9997</span></div>
+            <div class="step"><span class="step-n">06</span><span class="step-text">Open Notepad as Administrator → create <code>inputs.conf</code> at the path shown above</span></div>
+            <div class="step"><span class="step-n">07</span><span class="step-text">Install <strong>Sysmon</strong>: <code>sysmon64.exe -accepteula -i sysmonconfig-export.xml</code> (use SwiftOnSecurity config)</span></div>
+            <div class="step"><span class="step-n">08</span><span class="step-text"><strong>Critical</strong>: services.msc → SplunkForwarder → Properties → Log On → <code>Local System account</code> → Restart</span></div>
+          </div>
+          <div class="callout warn">⚠️ The Local System account step is critical. Without it, the Forwarder cannot read Sysmon's protected log channel and index=sysmon will always be empty.</div>
+        </div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div class="phase" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <span class="phase-num">P3</span>
+          <span class="phase-title">Attack Simulation & Detection — Atomic Red Team + SPL</span>
+          <span class="phase-status">✓ COMPLETE</span>
+          <span class="phase-chevron">▼</span>
+        </div>
+        <div class="phase-body">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="t-dot t-red"></div>
+              <div class="t-dot t-yellow"></div>
+              <div class="t-dot t-green"></div>
+              <span class="terminal-title">PowerShell (Admin) — Atomic Red Team Install</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-comment"># Step 1: Allow scripts</span>
+<span class="t-cmd">Set-ExecutionPolicy Bypass -Scope CurrentUser -Force</span>
+<br>
+<span class="t-comment"># Step 2: Fix NuGet</span>
+<span class="t-cmd">[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12</span>
+<span class="t-cmd">Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force</span>
+<span class="t-cmd">Install-Module -Name powershell-yaml -Force -AllowClobber</span>
+<br>
+<span class="t-comment"># Step 3: Install</span>
+<span class="t-cmd">IEX (IWR 'https://raw.githubusercontent.com/redcanaryco/invoke-atomicredteam/master/install-atomicredteam.ps1' -UseBasicParsing)</span>
+<span class="t-cmd">Install-AtomicRedTeam -getAtomics -Force</span>
+<br>
+<span class="t-comment"># Step 4: Import (every session)</span>
+<span class="t-cmd">Import-Module "C:\AtomicRedTeam\invoke-atomicredteam\Invoke-AtomicRedTeam.psd1" -Force</span>
+            </div>
+          </div>
+          <p style="color:var(--text2); font-size:0.9rem; margin-top:1rem;">See the Detections section below for all 5 SPL queries and what they catch.</p>
+        </div>
+      </div>
+
+      <!-- PHASE 4 -->
+      <div class="phase" onclick="togglePhase(this)">
+        <div class="phase-header">
+          <span class="phase-num">P4</span>
+          <span class="phase-title">SOC Dashboard — 6 Panel Real-Time Monitoring View</span>
+          <span class="phase-status">✓ COMPLETE</span>
+          <span class="phase-chevron">▼</span>
+        </div>
+        <div class="phase-body">
+          <div class="step-list">
+            <div class="step"><span class="step-n">01</span><span class="step-text">Splunk → Dashboards → Create New Dashboard → Title: <code>SOC Detection Lab</code> → Classic Dashboard</span></div>
+            <div class="step"><span class="step-n">02</span><span class="step-text"><strong>Panel 1</strong> — Single Value: total threat events (EventCode 4625, 4720, 4732, mimikatz/lsass/net user commands)</span></div>
+            <div class="step"><span class="step-n">03</span><span class="step-text"><strong>Panel 2</strong> — Bar Chart: top targeted accounts (EventCode 4625 grouped by Account_Name)</span></div>
+            <div class="step"><span class="step-n">04</span><span class="step-text"><strong>Panel 3</strong> — Line Chart: suspicious PowerShell activity over time (timechart span=1h)</span></div>
+            <div class="step"><span class="step-n">05</span><span class="step-text"><strong>Panel 4</strong> — Table: backdoor account activity (EventCode 4720 + 4732 with human-readable action labels)</span></div>
+            <div class="step"><span class="step-n">06</span><span class="step-text"><strong>Panel 5</strong> — Table: credential dumping attempts (CommandLine containing lsass/mimikatz/procdump)</span></div>
+            <div class="step"><span class="step-n">07</span><span class="step-text"><strong>Panel 6</strong> — Area Chart: overall attack timeline (all threat events, timechart span=30m)</span></div>
+          </div>
+          <div class="callout">The area chart timeline is the most powerful visual — a flat baseline with sudden spikes shows attack activity at a glance. That's what the dashboard produced in this lab.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- DETECTIONS -->
+<section id="detections">
+  <div class="fade-in">
+    <p class="section-label">// 03 — DETECTION RULES</p>
+    <h2 class="section-title">5 MITRE ATT&CK detections</h2>
+    <p class="section-desc">Each detection simulated with Atomic Red Team, caught with a custom SPL query, and verified with real log output in Splunk.</p>
+
+    <div class="detection-grid">
+
+      <div class="detection-card">
+        <div class="det-id">T1087.001 — DISCOVERY</div>
+        <div class="det-name">Account Discovery</div>
+        <div class="det-tactic">POST-EXPLOITATION RECON</div>
+        <div class="det-desc">Detects classic post-compromise reconnaissance — whoami, net user, and net localgroup executed from PowerShell. 3 events caught within seconds of simulation.</div>
+        <div class="det-query">index=sysmon EventCode=1
+| search CommandLine="*net user*"
+    OR CommandLine="*whoami*"
+    OR CommandLine="*net localgroup*"
+| table _time, host, User,
+    CommandLine, ParentCommandLine
+| sort - _time</div>
+        <span class="det-severity sev-medium">MEDIUM</span>
+      </div>
+
+      <div class="detection-card">
+        <div class="det-id">T1110.001 — CREDENTIAL ACCESS</div>
+        <div class="det-name">Brute Force Attack</div>
+        <div class="det-tactic">PASSWORD GUESSING</div>
+        <div class="det-desc">Detects repeated failed logins against local accounts. Field names in Splunk differ from raw Windows logs — use Account_Name and Logon_Type, not user and LogonType.</div>
+        <div class="det-query">index=windows EventCode=4625
+| stats count by
+    Source_Network_Address,
+    Account_Name, host, Logon_Type
+| where count > 3
+| sort - count</div>
+        <span class="det-severity sev-high">HIGH</span>
+      </div>
+
+      <div class="detection-card">
+        <div class="det-id">T1059.001 — EXECUTION</div>
+        <div class="det-name">Suspicious PowerShell</div>
+        <div class="det-tactic">LIVING OFF THE LAND</div>
+        <div class="det-desc">Catches 8 malicious PowerShell patterns including Invoke-Mimikatz download cradle, encoded commands, execution policy bypasses, and offensive toolkit enumeration.</div>
+        <div class="det-query">index=sysmon EventCode=1
+    Image="*powershell.exe*"
+| eval suspicious=if(match(
+    CommandLine,
+    "(?i)(-enc|-EncodedCommand|
+    -ExecutionPolicy Bypass|IEX|
+    DownloadString|WebClient)"),
+    "YES","NO")
+| where suspicious="YES"
+| table _time, host, CommandLine</div>
+        <span class="det-severity sev-critical">CRITICAL</span>
+      </div>
+
+      <div class="detection-card">
+        <div class="det-id">T1136.001 — PERSISTENCE</div>
+        <div class="det-name">Backdoor Admin Account</div>
+        <div class="det-tactic">LOCAL ACCOUNT CREATION</div>
+        <div class="det-desc">Caught 4 backdoor admin accounts created in 46 seconds. Correlates EventCode 4720 (account created) with 4732 (added to Administrators) — the classic attacker persistence pattern.</div>
+        <div class="det-query">index=windows
+    (EventCode=4720 OR EventCode=4732)
+| eval action=case(
+    EventCode=4720,
+        "New Account Created",
+    EventCode=4732,
+        "Added to Administrators")
+| table _time, host,
+    Account_Name, action, src_user
+| sort - _time</div>
+        <span class="det-severity sev-critical">CRITICAL</span>
+      </div>
+
+      <div class="detection-card">
+        <div class="det-id">T1003.001 — CREDENTIAL ACCESS</div>
+        <div class="det-name">Credential Dumping</div>
+        <div class="det-tactic">LSASS MEMORY DUMP</div>
+        <div class="det-desc">17 events caught: Mimikatz direct execution, Invoke-Mimikatz in-memory, ProcDump LSASS dump, comsvcs.dll LOLBin, and xordump. EventCode 1 (process create) instead of EventCode 10 due to Sysmon config.</div>
+        <div class="det-query">index=sysmon EventCode=1
+| search
+    CommandLine="*lsass*"
+    OR CommandLine="*mimikatz*"
+    OR CommandLine="*sekurlsa*"
+    OR CommandLine="*procdump*"
+| table _time, host,
+    User, CommandLine
+| sort - _time</div>
+        <span class="det-severity sev-critical">CRITICAL</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- EVENT IDS -->
+<section id="eventids">
+  <div class="fade-in">
+    <p class="section-label">// 04 — REFERENCE</p>
+    <h2 class="section-title">Key Windows Event IDs</h2>
+    <p class="section-desc">The most important Event IDs every SOC analyst should memorise. Sourced from both Windows Security log and Sysmon.</p>
+
+    <table class="event-table">
+      <thead>
+        <tr>
+          <th>EVENT ID</th>
+          <th>LOG SOURCE</th>
+          <th>MEANING</th>
+          <th>WHY IT MATTERS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>4624</td><td>Security</td><td>Successful logon</td><td>Baseline — track normal login patterns, spot off-hours access</td></tr>
+        <tr><td>4625</td><td>Security</td><td>Failed logon</td><td>Brute force detection — high count in short window = attack</td></tr>
+        <tr><td>4648</td><td>Security</td><td>Logon with explicit credentials</td><td>Pass-the-hash, lateral movement indicator</td></tr>
+        <tr><td>4672</td><td>Security</td><td>Special privileges assigned</td><td>Admin logon — alert on unexpected accounts</td></tr>
+        <tr><td>4720</td><td>Security</td><td>User account created</td><td>Backdoor account creation — always investigate</td></tr>
+        <tr><td>4732</td><td>Security</td><td>User added to security group</td><td>Privilege escalation — especially Administrators group</td></tr>
+        <tr><td>4776</td><td>Security</td><td>NTLM credential validation</td><td>Credential attacks — watch for failures and off-network sources</td></tr>
+        <tr><td>1</td><td>Sysmon</td><td>Process created</td><td>Everything that launches — core detection source for all attacks</td></tr>
+        <tr><td>3</td><td>Sysmon</td><td>Network connection made</td><td>C2 beaconing, data exfiltration, lateral movement</td></tr>
+        <tr><td>10</td><td>Sysmon</td><td>Process accessed another process</td><td>LSASS access = credential dumping attempt</td></tr>
+        <tr><td>11</td><td>Sysmon</td><td>File created</td><td>Malware dropping files, ransomware encryption activity</td></tr>
+        <tr><td>13</td><td>Sysmon</td><td>Registry value set</td><td>Persistence mechanisms — run keys, service installs</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- MITRE -->
+<section id="mitre">
+  <div class="fade-in">
+    <p class="section-label">// 05 — MITRE ATT&CK</p>
+    <h2 class="section-title">Technique coverage</h2>
+    <p class="section-desc">All 5 detections mapped to the MITRE ATT&CK Enterprise framework — the industry standard for categorising adversary behaviour.</p>
+
+    <div class="mitre-grid">
+      <div class="mitre-card">
+        <div class="mitre-id">T1087.001</div>
+        <div class="mitre-name">Account Discovery: Local Account</div>
+        <div class="mitre-tactic">Tactic: Discovery</div>
+        <div class="mitre-source">► Sysmon EID 1</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1110.001</div>
+        <div class="mitre-name">Brute Force: Password Guessing</div>
+        <div class="mitre-tactic">Tactic: Credential Access</div>
+        <div class="mitre-source">► Windows Security EID 4625</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1059.001</div>
+        <div class="mitre-name">Command & Scripting: PowerShell</div>
+        <div class="mitre-tactic">Tactic: Execution</div>
+        <div class="mitre-source">► Sysmon EID 1</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1136.001</div>
+        <div class="mitre-name">Create Account: Local Account</div>
+        <div class="mitre-tactic">Tactic: Persistence</div>
+        <div class="mitre-source">► Windows Security EID 4720+4732</div>
+      </div>
+      <div class="mitre-card">
+        <div class="mitre-id">T1003.001</div>
+        <div class="mitre-name">OS Cred Dumping: LSASS Memory</div>
+        <div class="mitre-tactic">Tactic: Credential Access</div>
+        <div class="mitre-source">► Sysmon EID 1 / 10</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- TROUBLESHOOT -->
+<section id="troubleshoot">
+  <div class="fade-in">
+    <p class="section-label">// 06 — TROUBLESHOOTING</p>
+    <h2 class="section-title">When things break</h2>
+    <p class="section-desc">Every issue encountered during this lab build, with exact fixes. If you hit something not listed here, open a GitHub issue.</p>
+
+    <div class="trouble-list">
+      <div class="trouble-header">
+        <span>PROBLEM</span>
+        <span>CAUSE</span>
+        <span>FIX</span>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">No driver found during Windows install</div>
+        <div class="trouble-cause">VirtualBox using NVMe storage controller which Windows installer doesn't have drivers for</div>
+        <div class="trouble-fix">Settings → Storage → remove NVMe controller → add AHCI (SATA) controller → re-attach VDI and ISO</div>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">index=windows returns no results</div>
+        <div class="trouble-cause">The "windows" index was never created in Splunk — events arrive and get dropped</div>
+        <div class="trouble-fix">Settings → Indexes → New Index → name: windows → Save. Check Messages for "dropped events" errors.</div>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">index=sysmon returns no results</div>
+        <div class="trouble-cause">SplunkForwarder running as a limited service account — cannot read Sysmon's protected log channel</div>
+        <div class="trouble-fix">services.msc → SplunkForwarder → Properties → Log On tab → Local System account → Apply → Restart</div>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">Splunk not loading on port 8000</div>
+        <div class="trouble-cause">SplunkD service stopped (common after PC restart)</div>
+        <div class="trouble-fix">services.msc → SplunkD → Start. Or: cmd as admin → cd "C:\Program Files\Splunk\bin" → splunk start</div>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">Forwarder not shipping logs</div>
+        <div class="trouble-cause">inputs.conf saved as .txt instead of no extension, or saved without admin rights</div>
+        <div class="trouble-fix">Open Notepad as Administrator → File → Save As → navigate to path → File type: All Files → filename: inputs.conf</div>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">Atomic Red Team install fails with powershell-yaml error</div>
+        <div class="trouble-cause">NuGet package provider not configured — PSGallery can't resolve the module</div>
+        <div class="trouble-fix">Install-PackageProvider -Name NuGet -Force, then Install-Module powershell-yaml -Force -AllowClobber</div>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">T1087 atomic test shows "yaml does not exist"</div>
+        <div class="trouble-cause">Atomics folder didn't download correctly during initial install</div>
+        <div class="trouble-fix">Install-AtomicRedTeam -getAtomics -Force -InstallPath "C:\AtomicRedTeam"</div>
+      </div>
+      <div class="trouble-item">
+        <div class="trouble-problem">VM window too small / mouse gets stuck</div>
+        <div class="trouble-cause">VirtualBox Guest Additions not installed</div>
+        <div class="trouble-fix">Devices → Insert Guest Additions CD Image → run VBoxWindowsAdditions.exe inside VM → Reboot</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- AUTHOR -->
+<section id="author">
+  <div class="fade-in">
+    <div class="author-section">
+      <div class="author-avatar">FK</div>
+      <div class="author-name">Feroz Khan</div>
+      <div class="author-title">SOC ANALYST IN TRAINING — CYBERSECURITY</div>
+      <p style="color:var(--text2); font-size:0.9rem; max-width:500px; margin: 0 auto 1.5rem;">Building practical cybersecurity skills through hands-on home lab projects. This SIEM lab is Tier 1 of a 9-project SOC analyst skill-building curriculum.</p>
+      <div class="author-links">
+        <a href="https://github.com/ferozahmadkhan" class="author-link">⌥ GitHub</a>
+        <a href="#" class="author-link">◈ LinkedIn</a>
+        <a href="#" class="author-link">▶ TryHackMe</a>
+      </div>
+      <br>
+      <div style="display:flex; gap:1.5rem; justify-content:center; flex-wrap:wrap; margin-top:1rem;">
+        <div style="text-align:center">
+          <div style="font-family:var(--mono); font-size:0.65rem; color:var(--text3); letter-spacing:0.15em;">LICENSE</div>
+          <div style="font-size:0.85rem; color:var(--text);">MIT</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--mono); font-size:0.65rem; color:var(--text3); letter-spacing:0.15em;">FRAMEWORK</div>
+          <div style="font-size:0.85rem; color:var(--text);">MITRE ATT&CK Enterprise</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--mono); font-size:0.65rem; color:var(--text3); letter-spacing:0.15em;">COMPLETED</div>
+          <div style="font-size:0.85rem; color:var(--text);">April 2026</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--mono); font-size:0.65rem; color:var(--text3); letter-spacing:0.15em;">TOOLS</div>
+          <div style="font-size:0.85rem; color:var(--text);">All Free & Open Source</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built by <span>Feroz Khan</span> &nbsp;•&nbsp; April 2026 &nbsp;•&nbsp; <span>github.com/ferozahmadkhan</span> &nbsp;•&nbsp; MIT License
+</footer>
+
+<script>
+  // Phase accordion
+  function togglePhase(el) {
+    el.classList.toggle('open');
+  }
+
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Nav background on scroll
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    nav.style.background = window.scrollY > 50
+      ? 'rgba(8,12,16,0.98)'
+      : 'rgba(8,12,16,0.9)';
+  });
+</script>
+</body>
+</html>
