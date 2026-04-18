@@ -50,7 +50,7 @@ A fully functional home SIEM lab built entirely with free tools — simulating a
 |---|---|---|
 | [VirtualBox](https://virtualbox.org) | Hypervisor for victim VM | Free |
 | [Windows 10 Enterprise ISO](https://microsoft.com/en-us/evalcenter) | Victim OS (90-day eval) | Free |
-| [Splunk Enterprise](https://splunk.com) | SIEM (500MB/day free tier) | Free |
+| [Splunk Enterprise](https://splunk.com) | SIEM (60 days) | Free |
 | [Splunk Universal Forwarder](https://splunk.com) | Log shipper | Free |
 | [Sysmon](https://learn.microsoft.com/sysinternals/downloads/sysmon) | Deep telemetry agent | Free |
 | [SwiftOnSecurity Sysmon Config](https://github.com/SwiftOnSecurity/sysmon-config) | Tuned Sysmon ruleset | Free |
