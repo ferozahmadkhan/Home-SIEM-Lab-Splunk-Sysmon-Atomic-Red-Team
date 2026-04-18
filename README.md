@@ -1,6 +1,6 @@
 # 🛡️ Home SIEM Lab — Splunk + Sysmon + Atomic Red Team
 
-> **Author:** Feroz Khan &nbsp;|&nbsp; **Tier 1 of 9-Project SOC Analyst Curriculum** &nbsp;|&nbsp; **April 2026**
+> **Author:** Feroz Khan &nbsp;|&nbsp;  &nbsp;|&nbsp; **April 2026**
 
 A fully functional home SIEM lab built entirely with free tools — simulating a corporate blue team environment on a single machine. Ingests real Windows + Sysmon logs, simulates 5 MITRE ATT&CK techniques with Atomic Red Team, detects them with custom SPL queries, and visualises everything on a live Splunk dashboard.
 
