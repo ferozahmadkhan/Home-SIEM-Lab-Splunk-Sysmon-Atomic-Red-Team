@@ -4,6 +4,8 @@
 
 A fully functional home SIEM lab built entirely with free tools — simulating a corporate blue team environment on a single machine. Ingests real Windows + Sysmon logs, simulates 5 MITRE ATT&CK techniques with Atomic Red Team, detects them with custom SPL queries, and visualises everything on a live Splunk dashboard.
 
+Visit the project website: https://ferozahmadkhan.github.io/Home-SIEM-Lab-Splunk-Sysmon-Atomic-Red-Team/
+
 ---
 
 ## 📊 Lab Results
