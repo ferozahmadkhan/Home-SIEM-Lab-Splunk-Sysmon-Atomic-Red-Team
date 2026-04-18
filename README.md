@@ -14,7 +14,7 @@ A fully functional home SIEM lab built entirely with free tools — simulating a
 | MITRE ATT&CK Techniques Covered | **5** |
 | Custom SPL Detection Rules | **5** |
 | Splunk Dashboard Panels | **6** |
-| Build Time | **~4-6 hours** |
+| Build Time | **~10-12 hours** |
 | Cost | **$0 — all free tools** |
 
 ---
