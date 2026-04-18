@@ -243,27 +243,6 @@ Invoke-AtomicTest T1003.001   # Credential Dumping
 
 ---
 
-## 📚 Next Steps
-
-**Tier 2 (Intermediate)**
-- [ ] Honeypot deployment (T-Pot / Cowrie on VPS)
-- [ ] Vulnerability management lab (Nessus Essentials)
-- [ ] IR playbook library
-- [ ] Kali Linux attacker VM
-
-**Tier 3 (Advanced)**
-- [ ] Detection engineering — CVE reproduction + Sigma rules
-- [ ] Threat intel dashboard (MISP / OTX API feeds)
-- [ ] SOAR automation (Shuffle SOAR)
-- [ ] Active Directory lab (Kerberoasting, DCSync)
-
-**Practice Platforms**
-- [TryHackMe — SOC Level 1](https://tryhackme.com)
-- [LetsDefend](https://letsdefend.io)
-- [BlueTeamLabs Online](https://blueteamlabs.online)
-- [CyberDefenders](https://cyberdefenders.org)
-
----
 
 ## 📄 License
 
